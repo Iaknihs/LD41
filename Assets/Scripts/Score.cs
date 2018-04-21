@@ -6,9 +6,11 @@ using UnityEngine.UI;
 public class Score : MonoBehaviour {
 
 	public double gems;
-	public double baseRate;
+	public float shovelMult;
+	public float pickMult;
 
 	public Text text;
+	public Image shovel;
 	public Image pick;
 
 	private LinkedList<int> collected;
@@ -20,9 +22,14 @@ public class Score : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		gems += ((collected.Contains(35)?baseRate:0)) * Time.deltaTime;
+		gems += ((collected.First.Equals(null)?0.0:0.05)
+			*(collected.Contains(35)?shovelMult:1.0)
+			*(collected.Contains(40)?pickMult:1.0)) 
+			* Time.deltaTime;
 		text.text = System.Convert.ToString (((float)((int)(gems*10)))/10);
 		if (collected.Contains (35))
+			shovel.GetComponent<Image> ().color = Color.white;
+		if (collected.Contains (40))
 			pick.GetComponent<Image> ().color = Color.white;
 	}
 
