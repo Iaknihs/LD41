@@ -56,5 +56,12 @@ public class CameraController : MonoBehaviour {
 			transform.position = new Vector3 (transform.position.x, target.position.y - 0.5f, transform.position.z);
 
 		transform.LookAt(target);
+
+		if(Input.GetMouseButtonDown(0))
+			Cursor.lockState = CursorLockMode.Locked;
+	}
+
+	void OnMouseDown (){
+		
 	}
 }

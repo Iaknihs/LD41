@@ -4,15 +4,21 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour {
 
+	public AudioClip sound;
+
     public float moveSpeed;
 	public float jumpForce;
 
     public CharacterController controller;
 	public Vector3 moveDirection;
 	public float gravityScale;
+	public float slopeLimit;
+	public float slideFriction;
 
 	public float ghostJumpTime;
 	private float jumpableTimer;
+	private bool isGrounded;
+	private Vector3 hitNormal;
 
 	// Use this for initialization
 	void Start () {
@@ -22,7 +28,10 @@ public class PlayerController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 
-		if (controller.isGrounded)
+		moveDirection.x = 0;
+		moveDirection.z = 0;
+
+		if (isGrounded)
 			jumpableTimer = 0f;
 		else
 			jumpableTimer += Time.deltaTime;
@@ -33,11 +42,13 @@ public class PlayerController : MonoBehaviour {
 		moveDirection *= moveSpeed;
 		moveDirection.y = ytemp;
 
-		if(controller.isGrounded)
+		if(isGrounded)
 			moveDirection.y = 0f;
 
 		if(jumpableTimer<ghostJumpTime){
 			if (Input.GetButtonDown("Jump")) {
+				GetComponent<MusicStart> ().musicSource.clip = sound;
+				GetComponent<MusicStart> ().Playsound();
 				moveDirection.y = jumpForce;
 				jumpableTimer = ghostJumpTime;
 			}
@@ -46,6 +57,24 @@ public class PlayerController : MonoBehaviour {
 		moveDirection.y += (Physics.gravity.y*gravityScale*Time.deltaTime);
 
 
+
+		if (!isGrounded) {
+			moveDirection.x += (1f - hitNormal.y) * hitNormal.x * (1f - slideFriction)*6;
+			moveDirection.z += (1f - hitNormal.y) * hitNormal.z * (1f - slideFriction)*6;
+		}
+
+		hitNormal = new Vector3 (0,0,0);
 		controller.Move(moveDirection*Time.deltaTime);
+		isGrounded = (Vector3.Angle (Vector3.up, hitNormal) <= slopeLimit);
+
+
+	}
+
+	void OnControllerColliderHit (ControllerColliderHit hit){
+		hitNormal = hit.normal;
+	}
+
+	void OnMouseDown (){
+		Cursor.lockState = CursorLockMode.Locked;
 	}
 }
